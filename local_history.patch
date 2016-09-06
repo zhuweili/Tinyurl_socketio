@@ -1,0 +1,16 @@
+Index: app/public/views/url.html
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/public/views/url.html	(revision )
++++ app/public/views/url.html	(revision )
+@@ -30,7 +30,7 @@
+             <div class ="panel panel-default">
+                 <div class ="panel-heading">
+                     Clicks for the past:
+-                    <a href="javascript: void(0);" ng-click = "getTime('hour')" ng-class="{'text-muted': time === 'hour'}">Hour</a>
++                    <a href="javascript: void(0);" ng-click = "getTime('hour')" ng-class="{'text-muted': time === 'hour'}">Hour_</a>
+                     <a href="javascript: void(0);" ng-click = "getTime('day')" ng-class="{'text-muted': time === 'day'}">Day</a>
+                     <a href="javascript: void(0);" ng-click = "getTime('month')" ng-class="{'text-muted': time === 'month'}">Month</a>
+                 </div>

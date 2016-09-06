@@ -1,0 +1,30 @@
+{
+  "name": "full-stack-tinyurl",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zhewangjoe/full-stack-tinyurl.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zhewangjoe/full-stack-tinyurl/issues"
+  },
+  "homepage": "https://github.com/zhewangjoe/full-stack-tinyurl#readme",
+  "dependencies": {
+    "angular-chart.js": "^1.0.2",
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "express-useragent": "^0.2.4",
+    "geoip-lite": "^1.1.8",
+    "highcharts-ng": "0.0.12",
+    "mongoose": "^4.5.9",
+    "redis": "^2.6.2"
+  }
+}
