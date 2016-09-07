@@ -5,6 +5,8 @@
 
 var express = require('express');
 var app = express();
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
 var restRouter = require('./routes/rest');
 var redirectRouter = require('./routes/redirect');
 var indexRouter = require('./routes/index');
@@ -18,6 +20,7 @@ var reload = require('./reload/warm_up');
 reload.warm_cache("Relaod is done", function (message) {
     console.log(message);
 });
+currentRoom=[];
 
 
 
@@ -33,4 +36,30 @@ app.use('/', indexRouter);
 
 app.use('/:shortUrl', redirectRouter);
 
-app.listen(3000);
+io.on('connection', function(socket){
+    console.log('a user connected');
+    socket.on('shortUrl', function(shortUrl) {
+        var roomId = "room_" + shortUrl;
+        if (currentRoom.indexOf(roomId) === -1) {
+            currentRoom[roomId] = [];
+        }
+        currentRoom[roomId].push(socket);
+        console.log ("now " + roomId + " has socket: " + currentRoom[roomId].length + " " + socket.id);
+        //console.log("accept from " + currentSocket[socket.id]);
+    });
+    socket.on('disconnect', function(){
+        console.log('user disconnected');
+    });
+    var i = 0;
+    setInterval(function(){
+    	socket.emit('message', {
+    		message: "service is alive + " + i.toString()
+    	});
+        console.log(i);
+    	i++;
+    }, 10000);
+});
+
+
+http.listen(3000);
+

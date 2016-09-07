@@ -19,12 +19,14 @@
   "homepage": "https://github.com/zhewangjoe/full-stack-tinyurl#readme",
   "dependencies": {
     "angular-chart.js": "^1.0.2",
+    "angular-socket-io": "^0.7.0",
     "body-parser": "^1.15.2",
     "express": "^4.14.0",
     "express-useragent": "^0.2.4",
     "geoip-lite": "^1.1.8",
     "highcharts-ng": "0.0.12",
     "mongoose": "^4.5.9",
-    "redis": "^2.6.2"
+    "redis": "^2.6.2",
+    "socket.io": "^1.4.8"
   }
 }
