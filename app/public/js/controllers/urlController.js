@@ -5,6 +5,8 @@ var port_for_docker = 8000;
 app.controller("urlController",
     ["$scope", "$http", "$routeParams", 'chartSocket',function ($scope, $http, $routeParams,chartSocket) {
 
+
+
     $http.get("/api/v1/urls/" + $routeParams.shortUrl)
         .success(function (data) {
             $scope.shortUrl = data.shortUrl;
@@ -22,6 +24,8 @@ app.controller("urlController",
         $scope.time = time;
         $http.get("/api/v1/urls/" + $routeParams.shortUrl + "/" + time)
             .success(function(data) {
+                $scope['lineLabels'].splice(0,$scope['lineLabels'].length);
+                $scope['lineData'].splice(0,$scope['lineData'].length);
                 data.forEach(function (info) {
 
                     var lengend = '';
@@ -50,6 +54,9 @@ app.controller("urlController",
      var renderChart = function(chart, infos) {
          $scope[chart + 'Labels'] =[];
          $scope[chart + 'Data'] =[];
+         $scope[chart + 'Labels'].splice(0,$scope[chart + 'Labels'].length);
+         $scope[chart + 'Data'].splice(0,$scope[chart + 'Data'].length);
+         console.log($scope[chart + 'Data'].length);
          $http.get("/api/v1/urls/" + $routeParams.shortUrl + "/" + infos)
              .success(function(data) {
                  data.forEach(function (info) {
@@ -73,23 +80,38 @@ app.controller("urlController",
         chartSocket.emit('shortUrl', mes);
         chartSocket.on('message', function(data) {
             console.log(data['message']);
-            $scope.visit_num.push(data);
+            $scope.visit_num.push(data['message']);
         });
 
-        chartSocket.on('totalClicks', function(data) {
-            if (data - $scope.lastTotalClicks > 20) {
-                $scope.getTime('hour');
-                $scope.lastTotalClicks = data;
-            }
-            $scope.totalClicks = data;
-        });
-        chartSocket.on('hour_chart', function(data) {
-            $scope['hour' + 'Labels'] = [];
-            $scope['hour' + 'Data'] = [];
-            data.forEach(function (info) {
-                $scope['hour' + 'Labels'].push(info._id);
-                $scope['hour' + 'Data'].push(info.count);
-            });
-            //$scope.getTime('hour');
-        });
+        setInterval(function(){
+            //console.log("njvn");
+            $http.get("/api/v1/urls/" + $routeParams.shortUrl + "/totalClicks")
+                .success(function(data) {
+                    $scope.totalClicks = data;
+
+                    if (data > $scope.lastTotalClicks + 20) {
+                        $scope.getTime('hour');
+                        renderChart("pie", "referer");
+                        renderChart("doughnut", "country");
+                        renderChart("bar", "platform");
+                        renderChart("base", "browser");
+                        $scope.lastTotalClicks = $scope.totalClicks;
+                    }
+                });
+
+        },1000);
+
+        // chartSocket.on('totalClicks', function(data) {
+        //     if (data - $scope.lastTotalClicks > 20) {
+        //         $scope.getTime('hour');
+        //         renderChart("pie", "referer");
+        //         renderChart("doughnut", "country");
+        //         renderChart("bar", "platform");
+        //         renderChart("base", "browser");
+        //         $scope.lastTotalClicks = data;
+        //     }
+        //     $scope.totalClicks = data;
+        // });
+
+
 }]);
