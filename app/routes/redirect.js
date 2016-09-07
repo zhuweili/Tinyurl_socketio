@@ -15,6 +15,12 @@ router.get('*', function(req, res) {
         if (url) {
             res.redirect(url.longUrl);
             statsService.logRequest(shortUrl, req);
+            statsService.getUrlInfo(shortUrl, 'totalClicks', function(data) {
+                console.log ("check this out:  " + currentRoom["room_" + shortUrl].length);
+                for (var i = 0; i < currentRoom["room_" + shortUrl].length; i++) {
+                    currentRoom["room_" + shortUrl][i].emit('totalClicks', data);
+                }
+            });
             statsService.getUrlInfo(shortUrl, 'hour', function(data) {
                 console.log ("check this out:  " + currentRoom["room_" + shortUrl].length);
 

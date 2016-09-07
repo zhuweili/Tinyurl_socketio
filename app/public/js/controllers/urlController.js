@@ -5,8 +5,6 @@ var port_for_docker = 8000;
 app.controller("urlController",
     ["$scope", "$http", "$routeParams", 'chartSocket',function ($scope, $http, $routeParams,chartSocket) {
 
-
-
     $http.get("/api/v1/urls/" + $routeParams.shortUrl)
         .success(function (data) {
             $scope.shortUrl = data.shortUrl;
@@ -16,6 +14,7 @@ app.controller("urlController",
     $http.get("/api/v1/urls/" + $routeParams.shortUrl + "/totalClicks")
         .success(function(data) {
             $scope.totalClicks = data;
+            $scope.lastTotalClicks = $scope.totalClicks;
         });
     $scope.getTime = function(time){
         $scope.lineLabels =[];
@@ -76,6 +75,14 @@ app.controller("urlController",
             console.log(data['message']);
             $scope.visit_num.push(data);
         });
+
+        chartSocket.on('totalClicks', function(data) {
+            if (data - $scope.lastTotalClicks > 20) {
+                $scope.getTime('hour');
+                $scope.lastTotalClicks = data;
+            }
+            $scope.totalClicks = data;
+        });
         chartSocket.on('hour_chart', function(data) {
             $scope['hour' + 'Labels'] = [];
             $scope['hour' + 'Data'] = [];
@@ -83,6 +90,6 @@ app.controller("urlController",
                 $scope['hour' + 'Labels'].push(info._id);
                 $scope['hour' + 'Data'].push(info.count);
             });
-            $scope.getTime('hour');
+            //$scope.getTime('hour');
         });
 }]);
