@@ -6,7 +6,6 @@ app.controller("urlController",
     ["$scope", "$http", "$routeParams", 'chartSocket',function ($scope, $http, $routeParams,chartSocket) {
 
 
-
     $http.get("/api/v1/urls/" + $routeParams.shortUrl)
         .success(function (data) {
             $scope.shortUrl = data.shortUrl;
@@ -83,35 +82,39 @@ app.controller("urlController",
             $scope.visit_num.push(data['message']);
         });
 
-        setInterval(function(){
-            //console.log("njvn");
-            $http.get("/api/v1/urls/" + $routeParams.shortUrl + "/totalClicks")
-                .success(function(data) {
-                    $scope.totalClicks = data;
+        // setInterval(function(){
+        //     //console.log("njvn");
+        //     $http.get("/api/v1/urls/" + $routeParams.shortUrl + "/totalClicks")
+        //         .success(function(data) {
+        //             $scope.totalClicks = data;
+        //
+        //             if (data > $scope.lastTotalClicks + 20) {
+        //                 $scope.getTime('hour');
+        //                 renderChart("pie", "referer");
+        //                 renderChart("doughnut", "country");
+        //                 renderChart("bar", "platform");
+        //                 renderChart("base", "browser");
+        //                 $scope.lastTotalClicks = $scope.totalClicks;
+        //             }
+        //         });
+        //
+        // },1000);
+        var myDate = new Date();
+        var lasttime = myDate.getTime();
+        chartSocket.on('totalClicks', function(data) {
+            var currentTime = myDate.getTime();
+            $scope.totalClicks = data;
+            if (data - $scope.lastTotalClicks > 20 || currentTime > (lasttime + 30 * 1000)) {
+                $scope.getTime('hour');
+                renderChart("pie", "referer");
+                renderChart("doughnut", "country");
+                renderChart("bar", "platform");
+                renderChart("base", "browser");
+                $scope.lastTotalClicks = data;
+                lasttime = currentTime;
+            }
 
-                    if (data > $scope.lastTotalClicks + 20) {
-                        $scope.getTime('hour');
-                        renderChart("pie", "referer");
-                        renderChart("doughnut", "country");
-                        renderChart("bar", "platform");
-                        renderChart("base", "browser");
-                        $scope.lastTotalClicks = $scope.totalClicks;
-                    }
-                });
-
-        },1000);
-
-        // chartSocket.on('totalClicks', function(data) {
-        //     if (data - $scope.lastTotalClicks > 20) {
-        //         $scope.getTime('hour');
-        //         renderChart("pie", "referer");
-        //         renderChart("doughnut", "country");
-        //         renderChart("bar", "platform");
-        //         renderChart("base", "browser");
-        //         $scope.lastTotalClicks = data;
-        //     }
-        //     $scope.totalClicks = data;
-        // });
+        });
 
 
 }]);
