@@ -1,3 +1,4 @@
+
 /**
  * Created by user on 8/9/16.
  */
@@ -8,6 +9,10 @@ var host = process.env.REDIS_PORT_6379_TCP_ADDR || '127.0.0.1';
 var port = process.env.REDIS_PORT_6379_TCP_PORT || '6379';
 
 var redisClient = redis.createClient(port, host);
+var emoji = require('emoji-lexicon');
+var utf8 = require('utf8');
+var utf8_map = require('./emojiMap.js');
+
 
 var encode = [];
 
@@ -34,26 +39,36 @@ var getShortUrl = function (longUrl, callback) {
     redisClient.get(longUrl, function (err, shortUrl) {
         if (shortUrl) {
             console.log("byebye mongodb");
+            var eUrl = generateEmojiUrl(shortUrl);
             callback({
                 longUrl: longUrl,
-                shortUrl: shortUrl
+                shortUrl: shortUrl,
+                eUrl: eUrl
             });
         } else {
             UrlModel.findOne({ longUrl: longUrl }, function (err, url) {
                 console.log("oops! not found in redis");
                 if (url) {
+                    // var combine_url = url.shortUrl + "+" + url.longUrl;
+                    // console.log(combine_url);
                     redisClient.set(url.shortUrl, url.longUrl);
                     redisClient.set(url.longUrl, url.shortUrl);
                     callback(url);
                 } else {
                     generateShortUrl(function (shortUrl) {
-                        var url = new UrlModel({ shortUrl: shortUrl, longUrl: longUrl});
+                        var eUrl = generate_edex(shortUrl);
+                        console.log(eUrl);
+                        var url = new UrlModel({ shortUrl: shortUrl, longUrl: longUrl, eUrl: eUrl });
                         url.save();
+
+                        //console.log("hhsbcfjdbvf" + utf8.decode("\xF0\x9F\x98\xBB\xF0\x9F\x98\xBB"));
                         redisClient.set(shortUrl, longUrl);
+                        //redisClient.set(utf8.encode(generateEmojiUrl(url.shortUrl).toString()), longUrl);
                         redisClient.set(longUrl, shortUrl);
                         callback(url);
                     });
                 }
+
             });
         }
     });
@@ -66,6 +81,29 @@ var generateShortUrl = function (callback) {
     });
 };
 
+var generateEmojiUrl = function (shortUrl) {
+    var result = '';
+    for (var i = 0; i < shortUrl.length; i++) {
+        result = result + emoji[shortUrl.charCodeAt(i) - 48];
+        console.log(utf8_map[shortUrl.charCodeAt(i) - 48]);
+    }
+    return result
+};
+
+var generate_edex = function (shortUrl) {
+    var res = "";
+    for (var i = 0; i < shortUrl.length;i++) {
+        for (var j = 0 ; j < encode.length; j++) {
+            if (encode[j] === shortUrl[i]) {
+                console.log("find index " + j);
+                res = res + utf8_map[j];
+                break;
+           }
+        }
+    }
+    return res;
+};
+
 var convertTo62 = function (num) {
     var result = '';
     do {
@@ -76,19 +114,37 @@ var convertTo62 = function (num) {
 };
 
 var getLongUrl = function (shortUrl, callback) {
-    redisClient.get(shortUrl, function (err, longUrl) {
-        if (longUrl) {
-            console.log("byebye mongodb");
-            callback({
-                longUrl: longUrl,
-                shortUrl: shortUrl
-            });
-        } else {
-            UrlModel.findOne({shortUrl: shortUrl}, function (err, url) {
-                callback(url);
-            });
+    var is_emoji = 1;
+    for (var i = 0; i < encode.length; i++) {
+        if (encode[i] === shortUrl.charAt(0)) {
+            is_emoji = 0;
         }
-    });
+    }
+    if (is_emoji) {
+
+        UrlModel.findOne({eUrl: shortUrl}, function (err, url) {
+                    callback(url);
+        });
+
+    } else {
+        redisClient.get(shortUrl, function (err, longUrl) {
+            if (longUrl) {
+                console.log("byebye mongodb");
+                callback({
+                    longUrl: longUrl,
+                    shortUrl: shortUrl,
+                    eUrl: generateEmojiUrl(shortUrl)
+                });
+            } else {
+                UrlModel.findOne({shortUrl: shortUrl}, function (err, url) {
+                    if (url) {
+                        url.eurl = generateEmojiUrl(url.shortUrl);
+                    }
+                    callback(url);
+                });
+            }
+        });
+    }
 };
 
 module.exports = {

@@ -3,6 +3,7 @@
  */
 
 
+
 var express = require('express');
 var app = express();
 var http = require('http').Server(app);
@@ -45,21 +46,20 @@ io.on('connection', function(socket){
         }
         currentRoom[roomId].push(socket);
         console.log ("now " + roomId + " has socket: " + currentRoom[roomId].length + " " + socket.id);
-        //console.log("accept from " + currentSocket[socket.id]);
+        console.log("accept from " + roomId);
     });
     socket.on('disconnect', function(){
         console.log('user disconnected');
     });
     var i = 0;
     setInterval(function(){
-    	socket.emit('message', {
-    		message: "service is alive + " + i.toString()
-    	});
+        socket.emit('message', {
+            message: "service is alive + " + i.toString()
+        });
         console.log(i);
-    	i++;
+        i++;
     }, 10000);
 });
 
 
 http.listen(3000);
-
