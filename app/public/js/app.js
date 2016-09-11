@@ -15,6 +15,4 @@ app.config(function ($routeProvider) {
             templateUrl: "./public/views/url.html",
             controller: "urlController"
         });
-}).factory('chartSocket',['socketFactory', function(socketFactory) {
-    return socketFactory();
-}]);
+});

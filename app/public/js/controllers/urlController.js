@@ -85,23 +85,8 @@ app.controller("urlController",
             $scope.visit_num.push(data['message']);
         });
 
-        // setInterval(function(){
-        //     //console.log("njvn");
-        //     $http.get("/api/v1/urls/" + $routeParams.shortUrl + "/totalClicks")
-        //         .success(function(data) {
-        //             $scope.totalClicks = data;
-        //
-        //             if (data > $scope.lastTotalClicks + 20) {
-        //                 $scope.getTime('hour');
-        //                 renderChart("pie", "referer");
-        //                 renderChart("doughnut", "country");
-        //                 renderChart("bar", "platform");
-        //                 renderChart("base", "browser");
-        //                 $scope.lastTotalClicks = $scope.totalClicks;
-        //             }
-        //         });
-        //
-        // },1000);
+
+
         var myDate = new Date();
         var lasttime = myDate.getTime();
         chartSocket.on('totalClicks', function(data) {

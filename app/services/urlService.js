@@ -49,8 +49,6 @@ var getShortUrl = function (longUrl, callback) {
             UrlModel.findOne({ longUrl: longUrl }, function (err, url) {
                 console.log("oops! not found in redis");
                 if (url) {
-                    // var combine_url = url.shortUrl + "+" + url.longUrl;
-                    // console.log(combine_url);
                     redisClient.set(url.shortUrl, url.longUrl);
                     redisClient.set(url.longUrl, url.shortUrl);
                     callback(url);
@@ -60,10 +58,7 @@ var getShortUrl = function (longUrl, callback) {
                         console.log(eUrl);
                         var url = new UrlModel({ shortUrl: shortUrl, longUrl: longUrl, eUrl: eUrl });
                         url.save();
-
-                        //console.log("hhsbcfjdbvf" + utf8.decode("\xF0\x9F\x98\xBB\xF0\x9F\x98\xBB"));
                         redisClient.set(shortUrl, longUrl);
-                        //redisClient.set(utf8.encode(generateEmojiUrl(url.shortUrl).toString()), longUrl);
                         redisClient.set(longUrl, shortUrl);
                         callback(url);
                     });
